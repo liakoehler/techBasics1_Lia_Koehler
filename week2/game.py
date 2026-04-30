@@ -1,4 +1,4 @@
-import random
+import random, time
 
 # === Datenbank: Outfits nach Anlässen ===
 outfits = {
@@ -95,9 +95,14 @@ def suggest_outfit():
         stil = "casual"  # Standardwert
 
     # Optionale Eingabe: Wetter (für Erweiterung)
-    wetter = input("Wie ist das Wetter? (warm / kalt / regnerisch / mild) [Enter für Standard]: ").strip().lower()
-    if wetter == "":
-        wetter = "mild"
+    # wetter = input("Wie ist das Wetter? (warm / kalt / regnerisch / mild) [Enter für Standard]: ").strip().lower()
+    # if wetter == "":
+    #    wetter = "mild"
+
+
+    #wetter = input("Wie hoch ist die Temperatur? [Enter für Standard]: ").strip().lower()
+    #if wetter == "":
+        #wetter = "16"
 
     # Anlass erkennen und Outfit vorschlagen
     if anlass in ["uni", "präsentation", "cafe-arbeit", "date", "sport"]:
@@ -120,12 +125,32 @@ def suggest_outfit():
         print(f"• {kategorie.title()}: {item}")
 
     # Zusätzliche Hinweise
-    if wetter == "kalt":
-        print("❄️  Tipp: Trage eine warme Jacke oder einen Mantel!")
-    elif wetter == "regnerisch":
-        print("☔  Tipp: Regenjacke und wasserfeste Schuhe nicht vergessen!")
-    elif wetter == "warm":
-        print("☀️  Tipp: Leichte Materialien und luftige Kleidung wählen!")
+    # if wetter == "kalt":
+        #print("❄️  Tipp: Trage eine warme Jacke oder einen Mantel!")
+    # elif wetter == "regnerisch":
+        #print("☔  Tipp: Regenjacke und wasserfeste Schuhe nicht vergessen!")
+    # elif wetter == "warm":
+        #print("☀️  Tipp: Leichte Materialien und luftige Kleidung wählen!")
+
+    while True:
+        zahl = input("Wie hoch ist die Temperatur? [Enter für Standard]: ")
+        try:
+            print("Ich gebe dir mal einen Tipp")
+            time.sleep(2)
+            zahl = int(zahl)
+            if zahl in range(-15, 1):
+                print("❄️  Tipp: Trage eine warme Jacke oder einen Mantel!")
+                break
+            elif zahl in range(1, 11):
+                print("☔  Tipp: Regenjacke und wasserfeste Schuhe nicht vergessen!")
+                break
+            elif zahl in range(11, 26):
+                print("☀️  Tipp: Leichte Materialien und luftige Kleidung wählen!")
+                break
+            elif zahl < -15 or zahl > 26:
+                print("Temperatur ist zu warm oder zu kalt")
+        except ValueError:
+            print("Bitte gib Zahlen zwischen -15 und 25 ein")
 
     # Option: Mehr Outfits vorschlagen
     weiter = input("\nMöchtest du ein weiteres Outfit vorschlagen lassen? (ja/nein): ").strip().lower()
