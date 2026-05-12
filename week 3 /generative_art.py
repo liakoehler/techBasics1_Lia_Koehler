@@ -1,8 +1,5 @@
-# File: week3/generative_art.py
 # Generative Art - Random Sun Pattern
-# Reference inspiration:
-# https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Sun_symbol.svg/1024px-Sun_symbol.svg.png
-
+# I used ChatGPT for explanation and a friend of mine to help me write the code
 import turtle
 import random
 
