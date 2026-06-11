@@ -1,0 +1,268 @@
+import random
+import time
+import csv
+from datetime import datetime
+
+DEBUG = True
+FILENAME = "outfit_records.csv"
+
+# === Datenbank: Outfits nach Anlässen ===
+outfits = {
+    "uni": {
+        "formal": {
+            "oberteil": ["Hemd", "Polo-Shirt", "Bluse"],
+            "hose": ["Anzughose", "Chino", "Jeans (formal)"],
+            "schuhe": ["Schnürschuhe", "Lederschuhe", "Ballerinas"],
+            "jacke": ["Blazer", "Weste", "Leichter Mantel"],
+            "accessoires": ["Brille", "Uhr", "Tasche"]
+        },
+        "casual": {
+            "oberteil": ["T-Shirt", "Pullover", "Leichtes Hemd"],
+            "hose": ["Jeans", "Chino", "Shorts (im Sommer)"],
+            "schuhe": ["Sneaker", "Ballerinas", "Sandalen"],
+            "jacke": ["Jeansjacke", "Windbreaker", "Leichter Pullover"],
+            "accessoires": ["Rucksack", "Sonnenbrille", "Kopfbedeckung"]
+        }
+    },
+    "präsentation": {
+        "formal": {
+            "oberteil": ["Hemd", "Business-Bluse", "Formales Hemd"],
+            "hose": ["Anzughose", "Chino (dunkel)"],
+            "schuhe": ["Lederschuhe", "Schnürschuhe"],
+            "jacke": ["Blazer", "Mantel"],
+            "accessoires": ["Uhr", "Tasche", "Brille"]
+        },
+        "semi-formal": {
+            "oberteil": ["Polo-Shirt", "Leichtes Hemd"],
+            "hose": ["Chino", "Anzughose"],
+            "schuhe": ["Sneaker (schlicht)", "Schnürschuhe"],
+            "jacke": ["Leichter Blazer", "Weste"],
+            "accessoires": ["Tasche", "Uhr"]
+        }
+    },
+    "cafe-arbeit": {
+        "casual": {
+            "oberteil": ["T-Shirt", "Pullover", "Leichtes Hemd"],
+            "hose": ["Jeans", "Chino", "Leggings"],
+            "schuhe": ["Sneaker", "Ballerinas", "Sandalen"],
+            "jacke": ["Jeansjacke", "Pullover"],
+            "accessoires": ["Rucksack", "Kopfhörer", "Tasse"]
+        },
+        "cozy": {
+            "oberteil": ["Wollpullover", "Kapuzenpulli"],
+            "hose": ["Jeans", "Leggings"],
+            "schuhe": ["Slipper", "Sneaker"],
+            "jacke": ["Weste", "Leichter Mantel"],
+            "accessoires": ["Kopfhörer", "Tasche", "Buch"]
+        }
+    },
+    "date": {
+        "romantisch": {
+            "oberteil": ["Seidenbluse", "Top mit Spitze", "Hemd mit Muster"],
+            "hose": ["Stoffhose", "Rock", "Jeans (schön)"],
+            "schuhe": ["Pumps", "Stiefeletten", "Schuhe mit Absatz"],
+            "jacke": ["Lederjacke", "Mantel"],
+            "accessoires": ["Halskette", "Ohrringe", "Tasche"]
+        },
+        "casual-chic": {
+            "oberteil": ["T-Shirt mit Design", "Pullover"],
+            "hose": ["Jeans", "Chino"],
+            "schuhe": ["Sneaker", "Stiefeletten"],
+            "jacke": ["Leichter Mantel", "Jeansjacke"],
+            "accessoires": ["Sonnenbrille", "Rucksack"]
+        }
+    },
+    "sport": {
+        "aktiv": {
+            "oberteil": ["Laufshirt", "Sport-T-Shirt", "Funktionshemd"],
+            "hose": ["Laufhose", "Shorts", "Trainingshose"],
+            "schuhe": ["Laufschuhe", "Basketballschuhe"],
+            "jacke": ["Windjacke", "Funktionsjacke"],
+            "accessoires": ["Sportuhr", "Rucksack", "Trinkflasche"]
+        }
+    }
+}
+
+def load_records():
+    records = []
+
+    try:
+        with open(FILENAME, "r", newline="", encoding="utf-8") as file:
+            reader = csv.reader(file)
+
+            for row in reader:
+                records.append(row)
+
+    except FileNotFoundError:
+        print("Keine vorhandene Rekord-Datei gefunden.")
+
+    except Exception as error:
+        print("Fehler beim Laden:", error)
+
+    return records
+
+
+def save_record(name, seconds_used):
+    records = load_records()
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    records.append([
+        name,
+        timestamp,
+        round(seconds_used, 2)
+    ])
+
+    try:
+        with open(FILENAME, "w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+
+            for record in records:
+                writer.writerow(record)
+
+    except Exception as error:
+        print("Fehler beim Speichern:", error)
+
+
+def show_leaderboard():
+    records = load_records()
+
+    if len(records) == 0:
+        print("\nNoch keine Einträge vorhanden.")
+        return
+
+    print("\n" + "=" * 50)
+    print("🏆 LEADERBOARD")
+    print("=" * 50)
+
+    try:
+        records.sort(key=lambda x: float(x[2]))
+
+        for position, record in enumerate(records, start=1):
+            print(
+                f"{position}. "
+                f"{record[0]} | "
+                f"{record[1]} | "
+                f"Zeit: {record[2]} Sekunden"
+            )
+
+    except Exception as error:
+        print("Fehler beim Anzeigen:", error)
+
+# === Funktion: Anlass erkennen und Outfit vorschlagen ===
+def suggest_outfit():
+    print("\n" + "=" * 50)
+    print("✨ Willkommen beim Outfit-Generator! ✨")
+    print("=" * 50)
+
+    name = input("\nBitte gib deinen Namen ein: ")
+
+    # DEBUG-Modus
+    if DEBUG:
+        print("\nDEBUG MODE AKTIV")
+
+        placeholder_time = 10.0
+
+        save_record(name, placeholder_time)
+
+        print("Test-Datensatz gespeichert.")
+
+        show_leaderboard()
+
+        return
+
+    start_time = time.time()
+
+    # Benutzer-Eingabe
+    anlass = input(
+        "\nFür welchen Anlass brauchst du ein Outfit? (z. B. Uni, Präsentation, Café-Arbeit, Date, Sport): ").strip().lower()
+
+    # Optionale Eingabe: Stilrichtung
+    stil = input(
+        "Wie formell soll es sein? (formal / semi-formal / casual / cozy / romantisch / aktiv) [Enter für Standard]: ").strip().lower()
+    if stil == "":
+        stil = "casual"  # Standardwert
+
+    # Optionale Eingabe: Wetter (für Erweiterung)
+    # wetter = input("Wie ist das Wetter? (warm / kalt / regnerisch / mild) [Enter für Standard]: ").strip().lower()
+    # if wetter == "":
+    #    wetter = "mild"
+
+
+    #wetter = input("Wie hoch ist die Temperatur? [Enter für Standard]: ").strip().lower()
+    #if wetter == "":
+        #wetter = "16"
+
+    # Anlass erkennen und Outfit vorschlagen
+    if anlass in ["uni", "präsentation", "cafe-arbeit", "date", "sport"]:
+        if stil in outfits[anlass]:
+            outfit = outfits[anlass][stil]
+        else:
+            # Falls Stil nicht existiert, nimm ersten Eintrag
+            stil = list(outfits[anlass].keys())[0]
+            outfit = outfits[anlass][stil]
+            print(f"⚠️  Stil '{stil}' nicht verfügbar. Verwende stattdessen: {stil}.")
+    else:
+        print(f"❌ Anlass '{anlass}' ist nicht in der Datenbank. Versuche: Uni, Präsentation, Café-Arbeit, Date, Sport.")
+        return
+
+    # Zufällige Auswahl aus den Kategorien
+    print(f"\n🎯 Vorgeschlagenes Outfit für: **{anlass.title()}** ({stil.title()})")
+    print("-" * 40)
+    for kategorie, items in outfit.items():
+        item = random.choice(items)
+        print(f"• {kategorie.title()}: {item}")
+
+    # Zusätzliche Hinweise
+    # if wetter == "kalt":
+        #print("❄️  Tipp: Trage eine warme Jacke oder einen Mantel!")
+    # elif wetter == "regnerisch":
+        #print("☔  Tipp: Regenjacke und wasserfeste Schuhe nicht vergessen!")
+    # elif wetter == "warm":
+        #print("☀️  Tipp: Leichte Materialien und luftige Kleidung wählen!")
+
+    while True:
+        zahl = input("Wie hoch ist die Temperatur? [Enter für Standard]: ")
+        try:
+            print("Ich gebe dir mal einen Tipp")
+            time.sleep(2)
+            zahl = int(zahl)
+            if zahl in range(-15, 1):
+                print("❄️  Tipp: Trage eine warme Jacke oder einen Mantel!")
+                break
+            elif zahl in range(1, 11):
+                print("☔  Tipp: Regenjacke und wasserfeste Schuhe nicht vergessen!")
+                break
+            elif zahl in range(11, 26):
+                print("☀️  Tipp: Leichte Materialien und luftige Kleidung wählen!")
+                break
+            elif zahl < -15 or zahl > 26:
+                print("Temperatur ist zu warm oder zu kalt")
+        except ValueError:
+            print("Bitte gib Zahlen zwischen -15 und 25 ein")
+
+    # Option: Mehr Outfits vorschlagen
+    weiter = input("\nMöchtest du ein weiteres Outfit vorschlagen lassen? (ja/nein): ").strip().lower()
+    if weiter in ["ja", "j", "yes"]:
+        suggest_outfit()
+    else:
+
+        end_time = time.time()
+
+        total_time = end_time - start_time
+
+        save_record(name, total_time)
+
+        print(
+            f"\n⏱️ Deine benötigte Zeit: "
+            f"{round(total_time, 2)} Sekunden"
+        )
+
+        show_leaderboard()
+
+        print("\n🎉 Viel Erfolg mit deinem Outfit! Bis zum nächsten Mal! 👗👕")
+
+
+# === Start des Programms ===
+if __name__ == "__main__":
+    suggest_outfit()
